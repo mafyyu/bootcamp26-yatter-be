@@ -17,9 +17,12 @@ import (
 	"yatter-backend-go/app/infra/transaction"
 	api_auth "yatter-backend-go/app/ui/api/auth"
 	"yatter-backend-go/app/ui/api/health"
+	api_post "yatter-backend-go/app/ui/api/post"
 	api_user "yatter-backend-go/app/ui/api/user"
 	"yatter-backend-go/app/usecase/auth"
+	"yatter-backend-go/app/usecase/post"
 	"yatter-backend-go/app/usecase/user"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -40,6 +43,7 @@ func Run(db *sqlx.DB) error {
 
 	// Repository
 	userRepo := infra.NewUserRepository()
+	postRepo := infra.NewPostRepository()
 
 	// Domain Service
 	usernameUniqueChecker := service.NewUsernameUniqueChecker(userRepo)
@@ -53,11 +57,14 @@ func Run(db *sqlx.DB) error {
 		usernameUniqueChecker,
 		transactor,
 	)
+
+	postCreateUsecase := post.NewPostUseCase(postRepo, userRepo, transactor)
 	loginUseCase := auth.NewLoginUseCase(authQueryService)
 
 	// Handler
 	userHandler := api_user.NewUserHandler(userCreateUseCase)
 	authHandler := api_auth.NewAuthHandler(loginUseCase)
+	postHandler := api_post.NewPostHandler(postCreateUsecase)
 
 	// ルーターの設定
 	r := chi.NewRouter()
@@ -83,6 +90,11 @@ func Run(db *sqlx.DB) error {
 		// ユーザー関連
 		r.Route("/users", func(r chi.Router) {
 			r.Post("/", userHandler.SignUp)
+		})
+
+		// yweet関連
+		r.Route("/yweets", func(r chi.Router) {
+			r.Post("/", postHandler.Post)
 		})
 
 		// ヘルスチェック

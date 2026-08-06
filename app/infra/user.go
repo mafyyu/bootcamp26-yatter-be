@@ -12,8 +12,10 @@ import (
 
 var _ repository.User = (*UserRepoImpl)(nil)
 
+// ここで型の定義
 type UserRepoImpl struct{}
 
+// 定義を
 func NewUserRepository() *UserRepoImpl {
 	return &UserRepoImpl{}
 }
