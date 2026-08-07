@@ -18,6 +18,7 @@ import (
 	api_auth "yatter-backend-go/app/ui/api/auth"
 	"yatter-backend-go/app/ui/api/health"
 	api_post "yatter-backend-go/app/ui/api/post"
+	api_timelinesPublic "yatter-backend-go/app/ui/api/timelines/public"
 	api_user "yatter-backend-go/app/ui/api/user"
 	"yatter-backend-go/app/usecase/auth"
 	"yatter-backend-go/app/usecase/post"
@@ -50,6 +51,7 @@ func Run(db *sqlx.DB) error {
 
 	// QueryService
 	authQueryService := query.NewAuthQueryService(db)
+	timelinesPublicService := query.NewTimelinesPublicQueryService(db)
 
 	// UseCase
 	userCreateUseCase := user.NewUserCreateUseCase(
@@ -65,6 +67,7 @@ func Run(db *sqlx.DB) error {
 	userHandler := api_user.NewUserHandler(userCreateUseCase)
 	authHandler := api_auth.NewAuthHandler(loginUseCase)
 	postHandler := api_post.NewPostHandler(postCreateUsecase)
+	timelinesPublicHandler := api_timelinesPublic.NewGetHandler(timelinesPublicService)
 
 	// ルーターの設定
 	r := chi.NewRouter()
@@ -95,6 +98,11 @@ func Run(db *sqlx.DB) error {
 		// yweet関連
 		r.Route("/yweets", func(r chi.Router) {
 			r.Post("/", postHandler.Post)
+		})
+
+		// timelines関連
+		r.Route("/timelines", func(r chi.Router) {
+			r.Get("/public", timelinesPublicHandler.Get)
 		})
 
 		// ヘルスチェック
