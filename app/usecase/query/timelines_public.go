@@ -6,5 +6,5 @@ import (
 )
 
 type TimelinesPublicQueryService interface {
-	TimelinesPublicQueryService(ctx context.Context) ([]public.TimelinesPublic, error)
+	TimelinesPublicQueryService(ctx context.Context, offset uint64, limit uint64) ([]public.TimelinesPublic, error)
 }

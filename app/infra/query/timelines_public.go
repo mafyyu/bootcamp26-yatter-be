@@ -31,7 +31,7 @@ type TimelinesPublicDTO struct {
 	PostCreatedAt time.Time `db:"post_created_at"`
 }
 
-func (t *TimelinesPublicQueryServiceImpl) TimelinesPublicQueryService(ctx context.Context) ([]public.TimelinesPublic, error) {
+func (t *TimelinesPublicQueryServiceImpl) TimelinesPublicQueryService(ctx context.Context, limit uint64, offset uint64) ([]public.TimelinesPublic, error) {
 	// &でアドレスを渡してる
 
 	var TimelinesPublicDTO []TimelinesPublicDTO
@@ -49,7 +49,9 @@ func (t *TimelinesPublicQueryServiceImpl) TimelinesPublicQueryService(ctx contex
 			FROM yweet 
 			LEFT JOIN user 
 			ON yweet.user_id = user.id
-		`,
+			LIMIT ?
+			OFFSET ?
+		`, limit, offset,
 	)
 	if err != nil {
 		fmt.Print(err)

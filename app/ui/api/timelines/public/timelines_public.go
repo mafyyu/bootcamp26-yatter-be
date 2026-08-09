@@ -24,10 +24,17 @@ func NewGetHandler(TimelinesPublicQueryService query.TimelinesPublicQueryService
 }
 
 func (h *GetHandlerImple) Get(w http.ResponseWriter, r *http.Request) {
-
 	ctx := r.Context()
 
-	result, err := h.TimelinesPublicQueryService.TimelinesPublicQueryService(ctx)
+	limit := r.URL.Query().Get("limit")
+	offset := r.URL.Query().Get("offset")
+
+	TimelinesPublicRequest, err := NewTimePublicRequest(limit,offset)
+	if err != nil {
+		return
+	}
+
+	result, err := h.TimelinesPublicQueryService.TimelinesPublicQueryService(ctx, TimelinesPublicRequest.limit, TimelinesPublicRequest.offset)
 	if err != nil {
 		return
 	}
